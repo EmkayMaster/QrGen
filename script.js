@@ -1,4 +1,4 @@
-// QR Code Generator Application
+// QR Code Generator Application - Fixed for browser compatibility
 import QRCode from "qrcode"
 
 class QRGenerator {
@@ -18,7 +18,59 @@ class QRGenerator {
 
   init() {
     this.setupEventListeners()
+    this.handleTemplateParams()
     this.generateQRCode()
+  }
+
+  handleTemplateParams() {
+    // Check URL parameters for template data
+    const urlParams = new URLSearchParams(window.location.search)
+    const template = urlParams.get("template")
+
+    if (template) {
+      this.loadTemplate(template)
+    }
+  }
+
+  loadTemplate(templateType) {
+    const templates = {
+      business: {
+        tab: "text",
+        content: "John Doe\nSoftware Developer\nPhone: +1-555-0123\nEmail: john@example.com\nWebsite: www.johndoe.com",
+      },
+      wifi: {
+        tab: "wifi",
+        content: "WIFI:T:WPA;S:MyNetwork;P:MyPassword;;",
+      },
+      email: {
+        tab: "email",
+        content: "mailto:contact@example.com?subject=Hello&body=Hi there!",
+      },
+      phone: {
+        tab: "phone",
+        content: "tel:+1234567890",
+      },
+      sms: {
+        tab: "sms",
+        content: "sms:+1234567890?body=Hello from QR code!",
+      },
+      location: {
+        tab: "location",
+        content: "geo:37.7749,-122.4194",
+      },
+    }
+
+    const template = templates[templateType]
+    if (template) {
+      this.switchTab(template.tab)
+      setTimeout(() => {
+        const input = document.querySelector(`#${template.tab}-content .input, #${template.tab}-content .textarea`)
+        if (input) {
+          input.value = template.content
+          this.generateQRCode()
+        }
+      }, 100)
+    }
   }
 
   setupEventListeners() {
@@ -188,23 +240,13 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
   })
 })
 
-// Add loading states for better UX
-function showLoading(element) {
-  element.style.opacity = "0.6"
-  element.style.pointerEvents = "none"
-}
-
-function hideLoading(element) {
-  element.style.opacity = "1"
-  element.style.pointerEvents = "auto"
-}
-
 // Add keyboard shortcuts
 document.addEventListener("keydown", (e) => {
   // Ctrl/Cmd + D to download
   if ((e.ctrlKey || e.metaKey) && e.key === "d") {
     e.preventDefault()
-    document.getElementById("download-btn").click()
+    const downloadBtn = document.getElementById("download-btn")
+    if (downloadBtn) downloadBtn.click()
   }
 
   // Ctrl/Cmd + 1-7 to switch tabs
@@ -213,16 +255,11 @@ document.addEventListener("keydown", (e) => {
     const tabs = ["url", "text", "email", "phone", "sms", "location", "wifi"]
     const tabIndex = Number.parseInt(e.key) - 1
     if (tabs[tabIndex]) {
-      document.querySelector(`[data-tab="${tabs[tabIndex]}"]`).click()
+      const tabButton = document.querySelector(`[data-tab="${tabs[tabIndex]}"]`)
+      if (tabButton) tabButton.click()
     }
   }
 })
-
-// Add mobile menu toggle (if needed)
-function toggleMobileMenu() {
-  const nav = document.querySelector(".nav")
-  nav.classList.toggle("mobile-open")
-}
 
 // Add intersection observer for animations
 const observerOptions = {
@@ -240,9 +277,11 @@ const observer = new IntersectionObserver((entries) => {
 }, observerOptions)
 
 // Observe elements for animation
-document.querySelectorAll(".feature-card, .template-card, .about-feature-card").forEach((el) => {
-  el.style.opacity = "0"
-  el.style.transform = "translateY(20px)"
-  el.style.transition = "opacity 0.6s ease, transform 0.6s ease"
-  observer.observe(el)
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".feature-card, .template-card, .about-feature-card").forEach((el) => {
+    el.style.opacity = "0"
+    el.style.transform = "translateY(20px)"
+    el.style.transition = "opacity 0.6s ease, transform 0.6s ease"
+    observer.observe(el)
+  })
 })
