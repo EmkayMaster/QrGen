@@ -22,7 +22,36 @@ class QRGenerator {
 
   init() {
     this.setupEventListeners()
+    this.loadTemplateData()
     this.generateQRCode()
+  }
+
+  loadTemplateData() {
+    // Check if we came from a template
+    const templateType = localStorage.getItem("templateType")
+    const templateContent = localStorage.getItem("templateContent")
+
+    if (templateType && templateContent !== null) {
+      // Switch to the template tab
+      this.switchTab(templateType)
+
+      // Fill in the content based on type
+      if (templateType === "wifi") {
+        // WiFi template doesn't need content pre-filled
+      } else {
+        const input = document.querySelector(`#${templateType}-content .input, #${templateType}-content .textarea`)
+        if (input) {
+          input.value = templateContent
+        }
+      }
+
+      // Clear the template data
+      localStorage.removeItem("templateType")
+      localStorage.removeItem("templateContent")
+
+      // Generate QR code with template data
+      setTimeout(() => this.generateQRCode(), 100)
+    }
   }
 
   setupEventListeners() {
