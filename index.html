@@ -115,32 +115,55 @@
                             <!-- Tab Content -->
                             <div class="tab-content active" id="url-content">
                                 <label for="url-input" class="input-label">Website URL</label>
-                                <input type="text" id="url-input" class="input" placeholder="https://example.com" value="https://example.com">
+                                <input type="text" id="url-input" class="input" placeholder="Enter website URL (e.g., google.com)" value="">
                             </div>
                             <div class="tab-content" id="text-content">
                                 <label for="text-input" class="input-label">Plain Text</label>
-                                <textarea id="text-input" class="input textarea" placeholder="Enter your text here"></textarea>
+                                <textarea id="text-input" class="input textarea" placeholder="Enter any text you want to encode" rows="4"></textarea>
                             </div>
                             <div class="tab-content" id="email-content">
                                 <label for="email-input" class="input-label">Email Address</label>
-                                <input type="email" id="email-input" class="input" placeholder="mailto:example@email.com">
+                                <input type="email" id="email-input" class="input" placeholder="Enter email address (e.g., user@example.com)" value="">
                             </div>
                             <div class="tab-content" id="phone-content">
                                 <label for="phone-input" class="input-label">Phone Number</label>
-                                <input type="tel" id="phone-input" class="input" placeholder="tel:+1234567890">
+                                <input type="tel" id="phone-input" class="input" placeholder="Enter phone number (e.g., +1234567890)" value="">
                             </div>
                             <div class="tab-content" id="sms-content">
                                 <label for="sms-input" class="input-label">SMS Message</label>
-                                <input type="text" id="sms-input" class="input" placeholder="sms:+1234567890">
+                                <input type="text" id="sms-input" class="input" placeholder="Enter phone number (e.g., +1234567890)" value="">
                             </div>
                             <div class="tab-content" id="location-content">
                                 <label for="location-input" class="input-label">GPS Coordinates</label>
-                                <input type="text" id="location-input" class="input" placeholder="geo:37.7749,-122.4194">
+                                <input type="text" id="location-input" class="input" placeholder="Enter coordinates (e.g., 40.7128,-74.0060)" value="">
                             </div>
                             <div class="tab-content" id="wifi-content">
-                                <label for="wifi-input" class="input-label">WiFi Credentials</label>
-                                <input type="text" id="wifi-input" class="input" placeholder="WIFI:T:WPA;S:NetworkName;P:Password;;">
-                            </div>
+  <div class="wifi-form">
+    <div class="form-group">
+      <label for="wifi-ssid" class="input-label">Network Name (SSID)</label>
+      <input type="text" id="wifi-ssid" class="input" placeholder="Enter WiFi network name" required>
+    </div>
+    <div class="form-group">
+      <label for="wifi-password" class="input-label">Password</label>
+      <input type="password" id="wifi-password" class="input" placeholder="Enter WiFi password">
+    </div>
+    <div class="form-group">
+      <label for="wifi-security" class="input-label">Security Type</label>
+      <select id="wifi-security" class="select">
+        <option value="WPA">WPA/WPA2</option>
+        <option value="WEP">WEP</option>
+        <option value="nopass">None (Open)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="checkbox-label">
+        <input type="checkbox" id="wifi-hidden" class="checkbox">
+        <span class="checkmark"></span>
+        Hidden Network
+      </label>
+    </div>
+  </div>
+</div>
                         </div>
 
                         <!-- Customization Options -->

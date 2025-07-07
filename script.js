@@ -1,5 +1,9 @@
-// QR Code Generator Application - Fixed for browser compatibility
-import QRCode from "qrcode"
+// QR Code Generator Application
+const QRCode = window.QRCode // Declare the QRCode variable
+
+if (typeof QRCode === "undefined") {
+  console.error("QRCode library not loaded")
+}
 
 class QRGenerator {
   constructor() {
@@ -18,59 +22,7 @@ class QRGenerator {
 
   init() {
     this.setupEventListeners()
-    this.handleTemplateParams()
     this.generateQRCode()
-  }
-
-  handleTemplateParams() {
-    // Check URL parameters for template data
-    const urlParams = new URLSearchParams(window.location.search)
-    const template = urlParams.get("template")
-
-    if (template) {
-      this.loadTemplate(template)
-    }
-  }
-
-  loadTemplate(templateType) {
-    const templates = {
-      business: {
-        tab: "text",
-        content: "John Doe\nSoftware Developer\nPhone: +1-555-0123\nEmail: john@example.com\nWebsite: www.johndoe.com",
-      },
-      wifi: {
-        tab: "wifi",
-        content: "WIFI:T:WPA;S:MyNetwork;P:MyPassword;;",
-      },
-      email: {
-        tab: "email",
-        content: "mailto:contact@example.com?subject=Hello&body=Hi there!",
-      },
-      phone: {
-        tab: "phone",
-        content: "tel:+1234567890",
-      },
-      sms: {
-        tab: "sms",
-        content: "sms:+1234567890?body=Hello from QR code!",
-      },
-      location: {
-        tab: "location",
-        content: "geo:37.7749,-122.4194",
-      },
-    }
-
-    const template = templates[templateType]
-    if (template) {
-      this.switchTab(template.tab)
-      setTimeout(() => {
-        const input = document.querySelector(`#${template.tab}-content .input, #${template.tab}-content .textarea`)
-        if (input) {
-          input.value = template.content
-          this.generateQRCode()
-        }
-      }, 100)
-    }
   }
 
   setupEventListeners() {
@@ -86,6 +38,17 @@ class QRGenerator {
       input.addEventListener("input", () => {
         this.generateQRCode()
       })
+    })
+
+    // WiFi form inputs
+    document.querySelectorAll("#wifi-ssid, #wifi-password, #wifi-security").forEach((input) => {
+      input.addEventListener("input", () => {
+        this.generateQRCode()
+      })
+    })
+
+    document.getElementById("wifi-hidden").addEventListener("change", () => {
+      this.generateQRCode()
     })
 
     // Color changes
@@ -168,7 +131,40 @@ class QRGenerator {
     const activeInput = document.querySelector(
       `#${this.activeTab}-content .input, #${this.activeTab}-content .textarea`,
     )
-    return activeInput ? activeInput.value : ""
+
+    // Special handling for WiFi
+    if (this.activeTab === "wifi") {
+      const ssid = document.getElementById("wifi-ssid").value.trim()
+      const password = document.getElementById("wifi-password").value
+      const security = document.getElementById("wifi-security").value
+      const hidden = document.getElementById("wifi-hidden").checked
+
+      if (!ssid) return ""
+
+      return `WIFI:T:${security};S:${ssid};P:${password};H:${hidden ? "true" : "false"};;`
+    }
+
+    if (!activeInput) return ""
+
+    const value = activeInput.value.trim()
+    if (!value) return ""
+
+    // Format content based on type
+    switch (this.activeTab) {
+      case "url":
+        return value.startsWith("http") ? value : `https://${value}`
+      case "email":
+        return value.startsWith("mailto:") ? value : `mailto:${value}`
+      case "phone":
+        return value.startsWith("tel:") ? value : `tel:${value}`
+      case "sms":
+        return value.startsWith("sms:") ? value : `sms:${value}`
+      case "location":
+        return value.startsWith("geo:") ? value : `geo:${value}`
+      case "text":
+      default:
+        return value
+    }
   }
 
   async generateQRCode() {
@@ -240,13 +236,23 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
   })
 })
 
+// Add loading states for better UX
+function showLoading(element) {
+  element.style.opacity = "0.6"
+  element.style.pointerEvents = "none"
+}
+
+function hideLoading(element) {
+  element.style.opacity = "1"
+  element.style.pointerEvents = "auto"
+}
+
 // Add keyboard shortcuts
 document.addEventListener("keydown", (e) => {
   // Ctrl/Cmd + D to download
   if ((e.ctrlKey || e.metaKey) && e.key === "d") {
     e.preventDefault()
-    const downloadBtn = document.getElementById("download-btn")
-    if (downloadBtn) downloadBtn.click()
+    document.getElementById("download-btn").click()
   }
 
   // Ctrl/Cmd + 1-7 to switch tabs
@@ -255,11 +261,16 @@ document.addEventListener("keydown", (e) => {
     const tabs = ["url", "text", "email", "phone", "sms", "location", "wifi"]
     const tabIndex = Number.parseInt(e.key) - 1
     if (tabs[tabIndex]) {
-      const tabButton = document.querySelector(`[data-tab="${tabs[tabIndex]}"]`)
-      if (tabButton) tabButton.click()
+      document.querySelector(`[data-tab="${tabs[tabIndex]}"]`).click()
     }
   }
 })
+
+// Add mobile menu toggle (if needed)
+function toggleMobileMenu() {
+  const nav = document.querySelector(".nav")
+  nav.classList.toggle("mobile-open")
+}
 
 // Add intersection observer for animations
 const observerOptions = {
@@ -277,11 +288,9 @@ const observer = new IntersectionObserver((entries) => {
 }, observerOptions)
 
 // Observe elements for animation
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".feature-card, .template-card, .about-feature-card").forEach((el) => {
-    el.style.opacity = "0"
-    el.style.transform = "translateY(20px)"
-    el.style.transition = "opacity 0.6s ease, transform 0.6s ease"
-    observer.observe(el)
-  })
+document.querySelectorAll(".feature-card, .template-card, .about-feature-card").forEach((el) => {
+  el.style.opacity = "0"
+  el.style.transform = "translateY(20px)"
+  el.style.transition = "opacity 0.6s ease, transform 0.6s ease"
+  observer.observe(el)
 })
